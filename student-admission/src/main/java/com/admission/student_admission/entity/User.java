@@ -1,5 +1,7 @@
 package com.admission.student_admission.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,15 +18,14 @@ public class User {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
     private String role;
 
-    // Default Constructor
     public User() {
     }
 
-    // Getter and Setter for id
     public Long getId() {
         return id;
     }
@@ -33,7 +34,6 @@ public class User {
         this.id = id;
     }
 
-    // Getter and Setter for name
     public String getName() {
         return name;
     }
@@ -42,7 +42,6 @@ public class User {
         this.name = name;
     }
 
-    // Getter and Setter for email
     public String getEmail() {
         return email;
     }
@@ -51,7 +50,6 @@ public class User {
         this.email = email;
     }
 
-    // Getter and Setter for password
     public String getPassword() {
         return password;
     }
@@ -60,7 +58,6 @@ public class User {
         this.password = password;
     }
 
-    // Getter and Setter for role
     public String getRole() {
         return role;
     }

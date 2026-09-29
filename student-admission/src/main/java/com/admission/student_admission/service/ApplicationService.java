@@ -11,9 +11,14 @@ import com.admission.student_admission.repository.ApplicationRepository;
 public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
+    private final NotificationService notificationService;
 
-    public ApplicationService(ApplicationRepository applicationRepository) {
+    public ApplicationService(
+            ApplicationRepository applicationRepository,
+            NotificationService notificationService) {
+
         this.applicationRepository = applicationRepository;
+        this.notificationService = notificationService;
     }
 
     public Application submitApplication(Application application) {
@@ -29,11 +34,24 @@ public class ApplicationService {
     }
 
     public Application updateApplicationStatus(Long id, String status) {
+
         Application application = applicationRepository.findById(id).orElse(null);
 
         if (application != null) {
+
+            status = status.trim();
+
             application.setStatus(status);
-            return applicationRepository.save(application);
+
+            Application savedApplication = applicationRepository.save(application);
+
+            notificationService.createNotification(
+                    savedApplication,
+                    "Your application " + savedApplication.getApplicationNumber()
+                            + " has been " + status
+            );
+
+            return savedApplication;
         }
 
         return null;
