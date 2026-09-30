@@ -1,5 +1,6 @@
 package com.admission.student_admission.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -21,39 +22,88 @@ public class ApplicationService {
         this.notificationService = notificationService;
     }
 
-    public Application submitApplication(Application application) {
+    // Create application
+    public Application createApplication(Application application) {
+
+        if (application.getStatus() == null
+                || application.getStatus().isBlank()) {
+
+            application.setStatus("PENDING");
+        }
+
+        if (application.getAppliedAt() == null) {
+            application.setAppliedAt(LocalDateTime.now());
+        }
+
+        if (application.getApplicationNumber() == null
+                || application.getApplicationNumber().isBlank()) {
+
+            long count = applicationRepository.count() + 1;
+
+            application.setApplicationNumber(
+                    String.format("APP%03d", count)
+            );
+        }
+
         return applicationRepository.save(application);
     }
 
+    // Get all applications
     public List<Application> getAllApplications() {
+
         return applicationRepository.findAll();
     }
 
+    // Get application by ID
     public Application getApplicationById(Long id) {
+
         return applicationRepository.findById(id).orElse(null);
     }
 
-    public Application updateApplicationStatus(Long id, String status) {
+    // Update application
+    public Application updateApplication(Application application) {
 
-        Application application = applicationRepository.findById(id).orElse(null);
+        return applicationRepository.save(application);
+    }
 
-        if (application != null) {
+    // Update application status
+    public Application updateApplicationStatus(
+            Long id,
+            String status) {
 
-            status = status.trim();
+        Application application =
+                applicationRepository.findById(id).orElse(null);
 
-            application.setStatus(status);
-
-            Application savedApplication = applicationRepository.save(application);
-
-            notificationService.createNotification(
-                    savedApplication,
-                    "Your application " + savedApplication.getApplicationNumber()
-                            + " has been " + status
-            );
-
-            return savedApplication;
+        if (application == null) {
+            return null;
         }
 
-        return null;
+        application.setStatus(status);
+
+        Application updatedApplication =
+                applicationRepository.save(application);
+
+        // Create notification for student
+        if (application.getStudent() != null) {
+
+            String message =
+                    "Your application "
+                    + application.getApplicationNumber()
+                    + " has been "
+                    + status;
+
+            notificationService.createNotification(
+                    application,
+                    message
+            );
+        }
+
+        return updatedApplication;
+    }
+
+    // Delete application
+    public void deleteApplication(Long id) {
+
+        applicationRepository.deleteById(id);
     }
 }
