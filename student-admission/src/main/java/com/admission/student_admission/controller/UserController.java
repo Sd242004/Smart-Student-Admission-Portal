@@ -1,19 +1,23 @@
 package com.admission.student_admission.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import com.admission.student_admission.entity.User;
 import com.admission.student_admission.service.UserService;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5174")
 @RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/register")
@@ -31,8 +35,7 @@ public class UserController {
             return ResponseEntity.status(401).body("Invalid email or password");
         }
 
-        if (!new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder()
-                .matches(user.getPassword(), existingUser.getPassword())) {
+        if (!passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
             return ResponseEntity.status(401).body("Invalid email or password");
         }
 
